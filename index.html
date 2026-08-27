@@ -502,11 +502,34 @@
 
   /* ---------- local storage ---------- */
   function lkey(email) { return "aimava_workbook::" + (email || "_"); }
+  function isEmptyWorkbook(c) {
+    if (c.identity.name || c.identity.organisation || c.identity.role) return false;
+    for (var k in c.data) {
+      var v = c.data[k];
+      if (typeof v === "string" && v.trim()) return false;
+      if (Array.isArray(v)) {
+        for (var i = 0; i < v.length; i++) {
+          var it = v[i];
+          if (typeof it === "string" && it.trim()) return false;
+          if (it && typeof it === "object") {
+            for (var kk in it) {
+              if (it[kk] === true) return false;
+              if (typeof it[kk] === "string" && it[kk].trim()) return false;
+            }
+          }
+        }
+      }
+    }
+    return true;  // only the email is filled in
+  }
+
   function saveLocal() {
     try {
       var c = collect();
+      if (isEmptyWorkbook(c)) return;  // never overwrite a good cache with a blank form
       c.savedAt = new Date().toISOString();
       localStorage.setItem(lkey(c.identity.email), JSON.stringify(c));
+      if (c.identity.email) localStorage.setItem("aimava_last_email", c.identity.email);
     } catch (e) {}
   }
   function loadLocal(email) {
@@ -563,16 +586,15 @@
       try { remote = await remoteLoad(email); }
       catch (e) { status("Server lookup failed: " + (e.message || e) + " — trying this browser.", "warn"); }
     }
+    // The server is the source of truth for "pick it up later". Only fall back to
+    // the browser copy when the server has nothing (offline, or never synced).
     var chosen, source;
-    if (remote && local) {
-      var rt = Date.parse(remote.savedAt || 0) || 0, lt = Date.parse(local.savedAt || 0) || 0;
-      if (lt > rt) { chosen = local; source = "this browser (newer than the server copy)"; }
-      else { chosen = remote; source = "the server"; }
-    } else if (remote) { chosen = remote; source = "the server"; }
-    else if (local) { chosen = local; source = "this browser"; }
+    if (remote) { chosen = remote; source = "the server"; }
+    else if (local) { chosen = local; source = "this browser (offline copy)"; }
 
     if (!chosen) { status("No saved workbook found for " + email + ".", "warn"); return; }
     populate(chosen);
+    saveLocal();
     document.querySelectorAll("textarea").forEach(autogrow);
     window.scrollTo({ top: 0, behavior: "smooth" });
     status("Loaded from " + source + (chosen.submittedAt ? " · already submitted " + fmtDate(chosen.submittedAt) : "") + ".", "ok");
@@ -633,6 +655,12 @@
     if (t) clearTimeout(t);
     t = setTimeout(function () { saveLocal(); }, 900);
   });
+
+  /* prefill the email you last used, so "Load" works straight after reopening */
+  try {
+    var lastEmail = localStorage.getItem("aimava_last_email");
+    if (lastEmail && !idEls.email.value) idEls.email.value = lastEmail;
+  } catch (e) {}
 
   /* mode banner + resume hint */
   var banner = document.getElementById("modeBanner");
