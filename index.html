@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIMAVA · The AI Sprint Workbook</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%238799CE'/%3E%3Ctext x='50' y='70' font-size='62' text-anchor='middle' fill='white' font-family='Arial,sans-serif'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --brand:#8799CE; --brand-dark:#5C6EA6; --brand-deep:#3F4E7C;
+    --ink:#1f2430; --muted:#6b7280; --line:#e3e6f0;
+    --bg:#f4f5fa; --card:#fff; --ok:#237a4b; --warn:#a5541f;
+    --radius:10px;
+  }
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:104px}
+  a{color:var(--brand-deep)}
+
+  .appbar{background:var(--brand);color:#fff}
+  .appbar-inner{max-width:900px;margin:0 auto;padding:18px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .appbar img{height:42px;display:block}
+  .appbar h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.01em}
+  .appbar .sub{font-size:12.5px;opacity:.92;margin-top:3px}
+
+  .topnav{max-width:900px;margin:0 auto;padding:10px 20px 0;display:flex;gap:8px;flex-wrap:wrap}
+  .topnav a{font-size:12.5px;text-decoration:none;background:#fff;border:1px solid var(--line);
+    padding:5px 11px;border-radius:999px;color:var(--brand-deep)}
+  .topnav a:hover{border-color:var(--brand)}
+
+  .wrap{max-width:900px;margin:0 auto;padding:8px 20px 40px}
+
+  .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brand);
+    border-radius:var(--radius);padding:12px 14px;font-size:13.5px;color:#40454f;margin:14px 0}
+  .note strong{color:var(--brand-deep)}
+
+  .mode-banner{font-size:13px;border-radius:var(--radius);padding:9px 13px;margin:14px 0}
+  .mode-on{background:#eef3ea;border:1px solid #cfe0c2;color:#2c5731}
+  .mode-off{background:#fdf3e8;border:1px solid #f0d8bd;color:#7c4a1e}
+
+  details.help{margin:12px 0;font-size:13px;background:#fff;border:1px solid var(--line);
+    border-radius:var(--radius);padding:10px 14px}
+  details.help summary{cursor:pointer;font-weight:600;color:var(--brand-deep)}
+  details.help ul{margin:8px 0 2px;padding-left:18px}
+  details.help li{margin:3px 0}
+
+  .identity{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin:16px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .identity .full{grid-column:1/-1}
+  .id-field label{display:block;font-weight:600;font-size:13px;margin-bottom:3px}
+
+  .canvas{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;margin:18px 0}
+  .canvas > h2{margin:0 0 2px;font-size:16px;color:var(--brand-deep)}
+  .canvas > .lead{margin:0 0 6px;font-size:13.5px;color:var(--muted)}
+  .canvas > .carry{margin:6px 0 2px;font-size:12.5px;color:var(--muted);font-style:italic}
+
+  .field{margin:16px 0}
+  .f-label{display:block;font-weight:600;font-size:13.5px;margin-bottom:3px}
+  .f-hint{margin:0 0 6px;font-size:12.5px;color:var(--muted);font-style:italic}
+  .f-input{width:100%;font:inherit;color:inherit;border:1px solid var(--line);border-radius:8px;
+    padding:8px 10px;background:#fdfdff}
+  .f-input:focus{outline:2px solid var(--brand);outline-offset:0;border-color:var(--brand)}
+  .f-textarea{resize:vertical;min-height:44px;overflow:hidden}
+
+  .f-checkgroup{display:flex;flex-wrap:wrap;gap:8px 16px}
+  .f-check{font-size:13px;display:inline-flex;align-items:center;gap:6px}
+
+  .f-steprow,.f-testrow,.f-riskrow,.f-logrow{display:flex;gap:8px;margin:6px 0;
+    align-items:flex-start;flex-wrap:wrap}
+  .f-steplbl{min-width:54px;font-size:12.5px;color:var(--muted);padding-top:9px}
+  .f-steprow .f-input{flex:1 1 260px}
+  .f-testrow .f-input:first-child{flex:1 1 240px}
+  .f-testrow .f-textarea{flex:2 1 300px}
+  .f-riskrow .f-input{flex:1 1 240px}
+  .f-logrow .f-textarea{flex:1 1 170px}
+  .f-logrow .btn-mini{margin-top:2px}
+
+  .btn-mini{font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;
+    border-radius:7px;padding:5px 9px;cursor:pointer;color:var(--brand-deep)}
+  .btn-mini:hover{border-color:var(--brand)}
+
+  .actionbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+    box-shadow:0 -2px 12px rgba(40,50,90,.06)}
+  .actionbar-inner{max-width:900px;margin:0 auto;padding:10px 20px;display:flex;gap:8px;
+    align-items:center;flex-wrap:wrap}
+  .btn{font:inherit;font-weight:600;font-size:13px;border-radius:8px;padding:9px 14px;cursor:pointer;
+    border:1px solid var(--brand-dark);background:#fff;color:var(--brand-deep)}
+  .btn:hover{background:#f0f2fa}
+  .btn-primary{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+  .btn-primary:hover{background:#33406a}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .spacer{flex:1}
+  .status{flex:1 1 100%;font-size:12.5px;color:var(--muted);min-height:16px}
+  .status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
+  .req{color:#c0392b}
+
+  @media (max-width:560px){ .identity{grid-template-columns:1fr} }
+  @media print{
+    body{background:#fff;padding:0}
+    .appbar{background:#fff;color:#000;border-bottom:2px solid var(--brand)}
+    .topnav,.actionbar,.mode-banner,details.help,.no-print{display:none !important}
+    .canvas{break-before:page;border:none;padding:0;margin:0 0 18px}
+    .canvas:first-of-type{break-before:auto}
+    .identity{border:none;padding:0}
+    .f-input{border:none;border-bottom:1px solid #bbb;border-radius:0;background:#fff;padding:2px 0}
+    .f-textarea{overflow:visible}
+  }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="appbar-inner">
+    <img src="Aimava.png" alt="Aimava">
+    <div>
+      <h1>The AI Sprint Workbook</h1>
+      <div class="sub">AI Sprint for Business Leaders &middot; September 2026 &middot; Facilitators: Andrew Gaule and Denis Bidinost</div>
+    </div>
+  </div>
+</header>
+
+<nav class="topnav">
+  <a href="#you">Your details</a>
+  <a href="#s1">Session 1 &middot; The opportunity</a>
+  <a href="#s2">Session 2 &middot; The workflow</a>
+  <a href="#s3">Session 3 &middot; Build and test</a>
+  <a href="#s4">Session 4 &middot; The case</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="note no-print">
+    <strong>Dummy or sanitised material only.</strong> Never paste confidential, personal or
+    commercially sensitive data into any AI tool, or into this workbook. If in doubt, invent a
+    realistic example instead.
+  </div>
+
+  <details class="help no-print">
+    <summary>How to use this</summary>
+    <ul>
+      <li>One canvas per session, one screen each. You fill it in live, in the room.</li>
+      <li>Nothing is asked twice. Where a later canvas needs an earlier answer, it points you back rather than asking you to retype it.</li>
+      <li>The prompts (P1&ndash;P6) live in the Reference Guide. You do not need to open it before the session.</li>
+      <li><em>Italic text is guidance.</em> It names the mistake most people make in that box.</li>
+      <li><strong>Save</strong> keeps your work against your email so you can pick it up later on any device. <strong>Export</strong> downloads a copy to this device. <strong>Submit</strong> sends it to the facilitators.</li>
+    </ul>
+  </details>
+
+  <div id="modeBanner" class="mode-banner"></div>
+
+  <!-- Identity -->
+  <section class="identity" id="you">
+    <div class="id-field"><label for="id_name">Your name</label>
+      <input class="f-input" id="id_name" type="text" autocomplete="name"></div>
+    <div class="id-field"><label for="id_org">Your organisation</label>
+      <input class="f-input" id="id_org" type="text" autocomplete="organization"></div>
+    <div class="id-field"><label for="id_role">Your role</label>
+      <input class="f-input" id="id_role" type="text" autocomplete="organization-title"></div>
+    <div class="id-field"><label for="id_email">Your email <span class="req">*</span></label>
+      <input class="f-input" id="id_email" type="email" autocomplete="email"
+        placeholder="you@organisation.com" required></div>
+    <p class="full" style="margin:2px 0 0;font-size:12px;color:var(--muted)">
+      Your email is how your workbook is saved and picked up again. It is required to Save or Submit.
+    </p>
+  </section>
+
+  <div id="canvases"></div>
+
+</div>
+
+<div class="actionbar no-print">
+  <div class="actionbar-inner">
+    <button class="btn" id="btnLoad" type="button">Load my saved workbook</button>
+    <button class="btn" id="btnSave" type="button">Save</button>
+    <button class="btn" id="btnExport" type="button">Export (.json)</button>
+    <button class="btn" id="btnImport" type="button">Import&hellip;</button>
+    <button class="btn" id="btnPrint" type="button">Print / PDF</button>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" id="btnSubmit" type="button">Submit to facilitators</button>
+    <input type="file" id="fileInput" accept="application/json,.json" hidden>
+    <div class="status" id="status">&nbsp;</div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- config / client ---------- */
+  var CFG = window.AIMAVA_CONFIG || {};
+  var sb = null;
+  try {
+    if (CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && window.supabase) {
+      sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+    }
+  } catch (e) { sb = null; }
+  var ONLINE = !!sb;
+
+  /* ---------- tiny DOM helper ---------- */
+  function h(tag, attrs) {
+    var el = document.createElement(tag), i, k, v;
+    if (attrs) for (k in attrs) {
+      v = attrs[k];
+      if (k === "class") el.className = v;
+      else if (k === "html") el.innerHTML = v;
+      else if (k.slice(0, 2) === "on" && typeof v === "function") el.addEventListener(k.slice(2), v);
+      else if (v !== null && v !== undefined && v !== false) el.setAttribute(k, v === true ? "" : v);
+    }
+    for (i = 2; i < arguments.length; i++) {
+      var kid = arguments[i];
+      if (kid == null || kid === false) continue;
+      if (Object.prototype.toString.call(kid) === "[object Array]") {
+        kid.forEach(function (c) { if (c != null && c !== false) el.appendChild(c.nodeType ? c : document.createTextNode(String(c))); });
+      } else {
+        el.appendChild(kid.nodeType ? kid : document.createTextNode(String(kid)));
+      }
+    }
+    return el;
+  }
+
+  function autogrow(el) { el.style.height = "auto"; el.style.height = Math.max(el.scrollHeight, 44) + "px"; }
+  function onGrow(e) { autogrow(e.target); }
+
+  /* ---------- workbook structure ---------- */
+  var TEST_PRESETS = [
+    "A normal example, the kind you designed it for",
+    "A difficult one: unusual, incomplete, badly formatted",
+    "Something it could not possibly know",
+    "Two pieces of information that contradict each other",
+    "One where the right answer is that a human decides"
+  ];
+  var BUILD_OPTS = ["A  prompt assistant", "B  document assistant", "C  interactive tool"];
+
+  var SCHEMA = [
+    {
+      id: "s1", title: "Canvas 1 · Session 1 — The opportunity",
+      lead: "You will leave with one opportunity, written in a sentence someone else can understand.",
+      fields: [
+        { name: "c1_issue", label: "1.1  The business issue", type: "textarea",
+          hint: "What is happening today that should not be? In business terms. If the words chatbot, copilot or agent appear here, you have skipped the problem." },
+        { name: "c1_role", label: "1.2  Who feels it — the role", type: "text",
+          hint: "A role, not a department." },
+        { name: "c1_freq", label: "How often it happens to them", type: "text" },
+        { name: "c1_steps", label: "1.3  How it works today", type: "steps", checkboxLabel: "slows down / goes wrong here",
+          hint: "One short phrase in each. Tick the step where it slows down or goes wrong." },
+        { name: "c1_pattern", label: "1.4  Where AI could contribute", type: "checkgroup",
+          options: ["Read and summarise", "Draft and produce", "Analyse and compare", "Converse and explain"],
+          hint: "If nothing fits, be suspicious: it may be an automation problem, which is cheaper and easier to approve." },
+        { name: "c1_pattern_do", label: "What it would do", type: "textarea" },
+        { name: "c1_statement", label: "1.5  Your opportunity statement", type: "textarea",
+          hint: "Run prompt P1 first, then write it in your own words. For [who], we could use AI to [do what], so that [what improves]." },
+        { name: "c1_checks", label: "Three checks", type: "checkgroup",
+          options: ["a named person, not a department", "you could show something working in three weeks", "someone senior would care"] },
+        { name: "c1_wrong", label: "1.6  What the AI got wrong, and what I am least sure of", type: "textarea",
+          hint: "The thing it stated confidently and incorrectly is the more useful half of the exercise." }
+      ]
+    },
+    {
+      id: "s2", title: "Canvas 2 · Session 2 — The workflow and the AI solution",
+      lead: "You will leave knowing exactly where AI enters, what it needs, and having seen it do the work.",
+      carry: "Carried forward: your user from 1.2, your statement from 1.5. Keep them open, do not rewrite them.",
+      fields: [
+        { name: "c2_moment", label: "2.1  The moment", type: "textarea",
+          hint: "What triggers this? When exactly does the user need something to happen? One line, not “when needed”." },
+        { name: "c2_steps", label: "2.2  The workflow, and where AI enters", type: "steps", checkboxLabel: "AI enters here",
+          hint: "Your four steps from 1.3 in short form. Tick the one step where AI enters. Two ticks means two use cases." },
+        { name: "c2_ai_does", label: "What AI does there", type: "textarea" },
+        { name: "c2_in", label: "2.3  The information it needs — what goes in", type: "textarea",
+          hint: "This is the question that stops most AI initiatives, and it is cheaper to ask now than in month four." },
+        { name: "c2_where", label: "Where it lives today", type: "text" },
+        { name: "c2_state", label: "What state it is in", type: "checkgroup",
+          options: ["tidy", "messy", "inconsistent", "scattered"] },
+        { name: "c2_sample", label: "A realistic sample this week?", type: "radio",
+          options: ["yes", "no", "not sure"] },
+        { name: "c2_attempt1", label: "2.4  Do the work with AI — Attempt 1, what came back", type: "textarea",
+          hint: "Twenty minutes with prompt P2, on the material you brought. Keep the prompt that worked." },
+        { name: "c2_changed", label: "What I changed in the prompt", type: "textarea" },
+        { name: "c2_attempt2", label: "Attempt 2, what changed", type: "textarea" },
+        { name: "c2_human", label: "2.5  What the human still decides", type: "text",
+          hint: "What must not be left to the AI, and why. One line." },
+        { name: "c2_worth", label: "2.6  Roughly what it is worth", type: "text",
+          hint: "A rough number whose basis you can state out loud beats a precise one you cannot." },
+        { name: "c2_basis", label: "The basis for that", type: "text" },
+        { name: "c2_basis_type", label: "That basis is", type: "radio", options: ["measured", "assumed"] },
+        { name: "c2_build", label: "What I will build", type: "radio", options: BUILD_OPTS },
+        { name: "c2_must_test", label: "The one thing it must test", type: "text" }
+      ]
+    },
+    {
+      id: "s3", title: "Canvas 3 · Session 3 — Build and test",
+      lead: "You will leave with something that runs, and five things you know about where it fails.",
+      carry: "Carried forward: the prompt from 2.4, the one thing it must test from 2.6. Build from that, not a blank page.",
+      fields: [
+        { name: "c3_level", label: "3.1  What I am building — level", type: "radio", options: BUILD_OPTS,
+          hint: "Start from the prompt you kept in 2.4, then add the layer for your level from prompt P3." },
+        { name: "c3_oneline", label: "In one sentence, what it does", type: "text" },
+        { name: "c3_log", label: "3.2  Build log", type: "log",
+          hint: "One instruction at a time, never a rewrite. The log is the learning, not the tool." },
+        { name: "c3_tests", label: "3.3  Test it", type: "tests",
+          hint: "Prompt P4 generates the five inputs. Run them yourself, one line each. These are examples, you may change them." },
+        { name: "c3_human", label: "3.4  What this means — what has to stay human", type: "textarea",
+          hint: "From the evidence above, not from principle. That is why this comes after the testing." },
+        { name: "c3_security", label: "What data or security issue would arise in real use", type: "textarea" },
+        { name: "c3_proved", label: "3.5  What it proved, and what it did not", type: "textarea",
+          hint: "Say both. Owning the limit is what keeps your credibility when someone else finds it." }
+      ]
+    },
+    {
+      id: "s4", title: "Canvas 4 · Session 4 — The case and the next step",
+      lead: "You will leave with a recommendation and a date in the diary.",
+      carry: "Carried forward: what stays human from 3.4, what it proved from 3.5. That is your evidence.",
+      fields: [
+        { name: "c4_their_words", label: "4.1  What changed when a real person saw it — their words", type: "textarea",
+          hint: "Their words, not your summary of them. Fill this in during the opening round." },
+        { name: "c4_my_thinking", label: "What it changed in my thinking", type: "textarea" },
+        { name: "c4_challenge", label: "4.2  The challenge I could not answer", type: "textarea",
+          hint: "Run prompt P5 first, the three persona challenge. Finance, then operations, then risk, separately." },
+        { name: "c4_answer", label: "My answer now", type: "textarea" },
+        { name: "c4_risks", label: "4.3  The three risks that matter", type: "risks",
+          hint: "A control is something somebody does. Being careful is not a control." },
+        { name: "c4_recommend", label: "4.4  What I recommend we do next", type: "textarea",
+          hint: "Run prompt P6, which consolidates canvases 1 to 4 into one page. Cut a third of it, then answer these." },
+        { name: "c4_who_decides", label: "Who decides", type: "text" },
+        { name: "c4_stop_if", label: "We would stop if", type: "textarea",
+          hint: "The stop condition is the line that earns trust: it says you are proposing a decision, not asking for faith." },
+        { name: "c4_cut", label: "What I cut, and the one number I would defend", type: "textarea" },
+        { name: "c4_person", label: "4.5  My commitment — the person I will speak to", type: "text",
+          hint: "You will read this out, and report against it at the follow up. Inside ten working days." },
+        { name: "c4_date", label: "The date", type: "date" },
+        { name: "c4_ask", label: "What I will ask them for", type: "text" }
+      ]
+    }
+  ];
+
+  /* ---------- field registry ---------- */
+  var FIELDS = {};   // name -> { get: fn, set: fn }
+
+  function wrap(f, control) {
+    return h("div", { class: "field" },
+      h("label", { class: "f-label", "for": f.name }, f.label),
+      f.hint ? h("p", { class: "f-hint" }, f.hint) : null,
+      control);
+  }
+
+  function buildField(f) {
+    switch (f.type) {
+      case "text":
+      case "date": {
+        var input = h("input", { type: f.type === "date" ? "date" : "text", class: "f-input", id: f.name });
+        FIELDS[f.name] = { get: function () { return input.value; }, set: function (v) { input.value = v || ""; } };
+        return wrap(f, input);
+      }
+      case "textarea": {
+        var ta = h("textarea", { class: "f-input f-textarea", id: f.name, rows: 3, oninput: onGrow });
+        FIELDS[f.name] = { get: function () { return ta.value; }, set: function (v) { ta.value = v || ""; autogrow(ta); } };
+        return wrap(f, ta);
+      }
+      case "checkgroup": {
+        var boxes = f.options.map(function (opt) {
+          var cb = h("input", { type: "checkbox", value: opt });
+          return { opt: opt, cb: cb, el: h("label", { class: "f-check" }, cb, " " + opt) };
+        });
+        FIELDS[f.name] = {
+          get: function () { return boxes.filter(function (b) { return b.cb.checked; }).map(function (b) { return b.opt; }); },
+          set: function (v) { var s = {}; (v || []).forEach(function (x) { s[x] = 1; }); boxes.forEach(function (b) { b.cb.checked = !!s[b.opt]; }); }
+        };
+        return wrap(f, h("div", { class: "f-checkgroup" }, boxes.map(function (b) { return b.el; })));
+      }
+      case "radio": {
+        var gname = f.name + "_r";
+        var rs = f.options.map(function (opt) {
+          var rb = h("input", { type: "radio", name: gname, value: opt });
+          return { opt: opt, rb: rb, el: h("label", { class: "f-check" }, rb, " " + opt) };
+        });
+        FIELDS[f.name] = {
+          get: function () { var hit = rs.filter(function (r) { return r.rb.checked; })[0]; return hit ? hit.opt : ""; },
+          set: function (v) { rs.forEach(function (r) { r.rb.checked = (r.opt === v); }); }
+        };
+        return wrap(f, h("div", { class: "f-checkgroup" }, rs.map(function (r) { return r.el; })));
+      }
+      case "steps": {
+        var rows = [0, 1, 2, 3].map(function (i) {
+          var t = h("input", { type: "text", class: "f-input", placeholder: "Step " + (i + 1) });
+          var c = h("input", { type: "checkbox" });
+          return { t: t, c: c, el: h("div", { class: "f-steprow" },
+            h("span", { class: "f-steplbl" }, "Step " + (i + 1)), t,
+            h("label", { class: "f-check" }, c, " " + (f.checkboxLabel || "here"))) };
+        });
+        FIELDS[f.name] = {
+          get: function () { return rows.map(function (r) { return { text: r.t.value, flag: r.c.checked }; }); },
+          set: function (v) { (v || []).forEach(function (val, i) { if (rows[i]) { rows[i].t.value = (val && val.text) || ""; rows[i].c.checked = !!(val && val.flag); } }); }
+        };
+        return wrap(f, h("div", {}, rows.map(function (r) { return r.el; })));
+      }
+      case "log": {
+        var body = h("div", {});
+        var store = [];
+        function addRow(val) {
+          val = val || { asked: "", came: "", changed: "" };
+          var a = h("textarea", { class: "f-input f-textarea", rows: 2, placeholder: "What I asked for", oninput: onGrow });
+          var b = h("textarea", { class: "f-input f-textarea", rows: 2, placeholder: "What came back", oninput: onGrow });
+          var c = h("textarea", { class: "f-input f-textarea", rows: 2, placeholder: "What I changed", oninput: onGrow });
+          a.value = val.asked || ""; b.value = val.came || ""; c.value = val.changed || "";
+          var rec = { a: a, b: b, c: c };
+          var del = h("button", { type: "button", class: "btn-mini", onclick: function () {
+            var i = store.indexOf(rec); if (i >= 0) { store.splice(i, 1); row.parentNode.removeChild(row); }
+          } }, "Remove");
+          var row = h("div", { class: "f-logrow" }, a, b, c, del);
+          store.push(rec); body.appendChild(row);
+          autogrow(a); autogrow(b); autogrow(c);
+        }
+        FIELDS[f.name] = {
+          get: function () { return store.map(function (r) { return { asked: r.a.value, came: r.b.value, changed: r.c.value }; }); },
+          set: function (v) {
+            store.length = 0; body.innerHTML = "";
+            var list = (v && v.length) ? v : [null];
+            list.forEach(function (x) { addRow(x); });
+          }
+        };
+        addRow();
+        var add = h("button", { type: "button", class: "btn-mini", onclick: function () { addRow(); } }, "+ Add entry");
+        return wrap(f, h("div", {}, body, add));
+      }
+      case "tests": {
+        var trows = TEST_PRESETS.map(function (p) {
+          var t = h("input", { type: "text", class: "f-input", value: p });
+          var w = h("textarea", { class: "f-input f-textarea", rows: 2, placeholder: "What happened", oninput: onGrow });
+          return { t: t, w: w, el: h("div", { class: "f-testrow" }, t, w) };
+        });
+        FIELDS[f.name] = {
+          get: function () { return trows.map(function (r) { return { test: r.t.value, happened: r.w.value }; }); },
+          set: function (v) { (v || []).forEach(function (val, i) { if (trows[i]) { trows[i].t.value = (val && val.test != null) ? val.test : TEST_PRESETS[i]; trows[i].w.value = (val && val.happened) || ""; autogrow(trows[i].w); } }); }
+        };
+        return wrap(f, h("div", {}, trows.map(function (r) { return r.el; })));
+      }
+      case "risks": {
+        var rrows = [0, 1, 2].map(function () {
+          var r = h("input", { type: "text", class: "f-input", placeholder: "The risk" });
+          var c = h("input", { type: "text", class: "f-input", placeholder: "Who does what about it" });
+          return { r: r, c: c, el: h("div", { class: "f-riskrow" }, r, c) };
+        });
+        FIELDS[f.name] = {
+          get: function () { return rrows.map(function (x) { return { risk: x.r.value, control: x.c.value }; }); },
+          set: function (v) { (v || []).forEach(function (val, i) { if (rrows[i]) { rrows[i].r.value = (val && val.risk) || ""; rrows[i].c.value = (val && val.control) || ""; } }); }
+        };
+        return wrap(f, h("div", {}, rrows.map(function (x) { return x.el; })));
+      }
+    }
+  }
+
+  /* ---------- render ---------- */
+  var idEls = {
+    name: document.getElementById("id_name"),
+    org: document.getElementById("id_org"),
+    role: document.getElementById("id_role"),
+    email: document.getElementById("id_email")
+  };
+  var statusEl = document.getElementById("status");
+
+  (function render() {
+    var host = document.getElementById("canvases");
+    SCHEMA.forEach(function (sec) {
+      var el = h("section", { class: "canvas", id: sec.id },
+        h("h2", {}, sec.title),
+        h("p", { class: "lead" }, sec.lead),
+        sec.carry ? h("p", { class: "carry" }, sec.carry) : null);
+      sec.fields.forEach(function (f) { el.appendChild(buildField(f)); });
+      host.appendChild(el);
+    });
+  })();
+
+  /* ---------- serialise ---------- */
+  function collect() {
+    var data = {};
+    for (var name in FIELDS) data[name] = FIELDS[name].get();
+    return {
+      identity: {
+        name: idEls.name.value.trim(),
+        organisation: idEls.org.value.trim(),
+        role: idEls.role.value.trim(),
+        email: idEls.email.value.trim().toLowerCase()
+      },
+      data: data
+    };
+  }
+
+  function populate(obj) {
+    obj = obj || {};
+    var id = obj.identity || {};
+    idEls.name.value = id.name || "";
+    idEls.org.value = id.organisation || "";
+    idEls.role.value = id.role || "";
+    if (id.email) idEls.email.value = id.email;
+    var data = obj.data || {};
+    for (var name in FIELDS) if (Object.prototype.hasOwnProperty.call(data, name)) FIELDS[name].set(data[name]);
+  }
+
+  /* ---------- local storage ---------- */
+  function lkey(email) { return "aimava_workbook::" + (email || "_"); }
+  function saveLocal() {
+    try {
+      var c = collect();
+      c.savedAt = new Date().toISOString();
+      localStorage.setItem(lkey(c.identity.email), JSON.stringify(c));
+    } catch (e) {}
+  }
+  function loadLocal(email) {
+    try { var s = localStorage.getItem(lkey(email)); return s ? JSON.parse(s) : null; }
+    catch (e) { return null; }
+  }
+
+  /* ---------- helpers ---------- */
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  function nowTime() { return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+  function fmtDate(s) { try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function status(msg, kind) {
+    statusEl.textContent = msg || " ";
+    statusEl.className = "status" + (kind ? " " + kind : "");
+  }
+
+  /* ---------- remote (Supabase RPC) ---------- */
+  function rpcArgs(c) {
+    return { p_email: c.identity.email, p_name: c.identity.name, p_org: c.identity.organisation, p_role: c.identity.role, p_data: c.data };
+  }
+  async function remoteSave(c) { var r = await sb.rpc("save_draft", rpcArgs(c)); if (r.error) throw r.error; }
+  async function remoteSubmit(c) { var r = await sb.rpc("submit_workbook", rpcArgs(c)); if (r.error) throw r.error; }
+  async function remoteLoad(email) {
+    var r = await sb.rpc("load_draft", { p_email: email });
+    if (r.error) throw r.error;
+    var row = Array.isArray(r.data) ? r.data[0] : r.data;
+    if (!row) return null;
+    return {
+      identity: { email: email, name: row.name, organisation: row.organisation, role: row.role },
+      data: row.data || {},
+      savedAt: row.updated_at,
+      submittedAt: row.submitted_at
+    };
+  }
+
+  /* ---------- actions ---------- */
+  async function doSave() {
+    var c = collect();
+    if (!validEmail(c.identity.email)) { status("Enter a valid email first — it is how you pick this up later.", "warn"); idEls.email.focus(); return; }
+    saveLocal();
+    if (!ONLINE) { status("Saved in this browser. Add your Supabase keys in config.js to save to the server.", "ok"); return; }
+    status("Saving…");
+    try { await remoteSave(c); status("Saved to the server · " + nowTime(), "ok"); }
+    catch (e) { status("Saved locally, but the server save failed: " + (e.message || e), "warn"); }
+  }
+
+  async function doLoad() {
+    var email = idEls.email.value.trim().toLowerCase();
+    if (!validEmail(email)) { status("Enter the email you saved with, then Load.", "warn"); idEls.email.focus(); return; }
+    var remote = null, local = loadLocal(email);
+    if (ONLINE) {
+      status("Looking up…");
+      try { remote = await remoteLoad(email); }
+      catch (e) { status("Server lookup failed: " + (e.message || e) + " — trying this browser.", "warn"); }
+    }
+    var chosen, source;
+    if (remote && local) {
+      var rt = Date.parse(remote.savedAt || 0) || 0, lt = Date.parse(local.savedAt || 0) || 0;
+      if (lt > rt) { chosen = local; source = "this browser (newer than the server copy)"; }
+      else { chosen = remote; source = "the server"; }
+    } else if (remote) { chosen = remote; source = "the server"; }
+    else if (local) { chosen = local; source = "this browser"; }
+
+    if (!chosen) { status("No saved workbook found for " + email + ".", "warn"); return; }
+    populate(chosen);
+    document.querySelectorAll("textarea").forEach(autogrow);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    status("Loaded from " + source + (chosen.submittedAt ? " · already submitted " + fmtDate(chosen.submittedAt) : "") + ".", "ok");
+  }
+
+  async function doSubmit() {
+    var c = collect();
+    if (!validEmail(c.identity.email)) { status("A valid email is required to submit.", "warn"); idEls.email.focus(); return; }
+    if (!ONLINE) { status("Submitting needs the Supabase backend. Add your keys in config.js (see README).", "warn"); return; }
+    if (!window.confirm("Submit your workbook to the facilitators?\n\nYou can still Save changes afterwards.")) return;
+    status("Submitting…");
+    try {
+      await remoteSubmit(c);
+      saveLocal();
+      status("Submitted · " + nowTime() + ". A copy has been downloaded to this device for your records.", "ok");
+      exportJSON(true);
+    } catch (e) { status("Submit failed: " + (e.message || e), "warn"); }
+  }
+
+  function exportJSON(silent) {
+    var c = collect();
+    var payload = { app: "AIMAVA AI Sprint Workbook", schemaVersion: 1, exportedAt: new Date().toISOString(), identity: c.identity, data: c.data };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = h("a", { href: url, download: "aimava-workbook-" + (c.identity.email || "draft").replace(/[^a-z0-9._-]+/gi, "_") + "-" + todayStr() + ".json" });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    if (!silent) status("Exported a .json copy to this device.", "ok");
+  }
+
+  function importJSON(file) {
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var obj = JSON.parse(r.result);
+        populate(obj);
+        document.querySelectorAll("textarea").forEach(autogrow);
+        saveLocal();
+        status("Imported from file. Remember to Save if you want it on the server.", "ok");
+      } catch (e) { status("That file is not a valid workbook export.", "warn"); }
+    };
+    r.readAsText(file);
+  }
+
+  /* ---------- wire up ---------- */
+  document.getElementById("btnSave").addEventListener("click", doSave);
+  document.getElementById("btnLoad").addEventListener("click", doLoad);
+  document.getElementById("btnSubmit").addEventListener("click", doSubmit);
+  document.getElementById("btnExport").addEventListener("click", function () { exportJSON(false); });
+  document.getElementById("btnPrint").addEventListener("click", function () { window.print(); });
+  var fileInput = document.getElementById("fileInput");
+  document.getElementById("btnImport").addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function (e) { if (e.target.files[0]) importJSON(e.target.files[0]); e.target.value = ""; });
+
+  /* autosave to this browser, debounced */
+  var t = null;
+  document.addEventListener("input", function () {
+    if (t) clearTimeout(t);
+    t = setTimeout(function () { saveLocal(); }, 900);
+  });
+
+  /* mode banner + resume hint */
+  var banner = document.getElementById("modeBanner");
+  if (ONLINE) {
+    banner.className = "mode-banner mode-on";
+    banner.textContent = "Connected to the server. Save and Submit are live.";
+  } else {
+    banner.className = "mode-banner mode-off";
+    banner.textContent = "Local-only mode — Save / Load / Export work in this browser. Add your Supabase keys in config.js to enable Submit and cross-device Save.";
+  }
+
+  window.addEventListener("beforeunload", saveLocal);
+  window.addEventListener("load", function () { document.querySelectorAll("textarea").forEach(autogrow); });
+  status(" ");
+})();
+</script>
+</body>
+</html>
